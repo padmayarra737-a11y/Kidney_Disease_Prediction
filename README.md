@@ -14,7 +14,7 @@ A Machine Learning project that predicts whether a patient is likely to have **C
 ## 📊 Dataset
 
 * **Records:** 397
-* **Features:** 24+
+* **Features:** 24
 * **Target:** CKD / Not CKD
 
 The dataset contains patient information such as age, blood pressure, blood urea, serum creatinine, hemoglobin, diabetes, hypertension, and other medical parameters.
