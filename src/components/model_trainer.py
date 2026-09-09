@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier, ExtraTreesClassifier
 from sklearn.metrics import accuracy_score, classification_report , confusion_matrix, f1_score, precision_score, recall_score,r2_score
-from sklearn.model_selection import GridSearchCV    
+from sklearn.model_selection import GridSearchCV, cross_val_score    
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -19,30 +19,23 @@ from src.utils import save_object,evaluate_models
 class ModelTrainerConfig:
     trained_model_file_path = os.path.join("artifacts", "model.pkl")
 
+
 class ModelTrainer:
     def __init__(self):
         self.model_trainer_config = ModelTrainerConfig()
 
-    def initiate_model_trainer(self, train_array, test_array):
+    def initiate_model_trainer(self, X_train, y_train, X_test, y_test):
+
         try:
             logging.info("Split training and test input data")
-            X_train, y_train, X_test, y_test = (
-                train_array[:, :-1],
-                train_array[:, -1],
-                test_array[:, :-1],
-                test_array[:, -1],
-            )
-
+        
             models = {
                 "Random Forest": RandomForestClassifier(),
                 "Decision Tree": DecisionTreeClassifier(),
                 "Gradient Boosting": GradientBoostingClassifier(),
                 "AdaBoost": AdaBoostClassifier(),
-                "Extra Trees": ExtraTreesClassifier(),
-                "Logistic Regression": LogisticRegression(),
                 "Support Vector Classifier": SVC(),
                 "K-Nearest Neighbors": KNeighborsClassifier(),
-                "Extra Trees Classifier": ExtraTreesClassifier()
             }
 
             model_report : dict[str, float] = evaluate_models(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, models=models)
@@ -68,13 +61,35 @@ class ModelTrainer:
                 obj=best_model
             )
 
+             # ALSO save with joblib for Streamlit
+            import joblib
+            joblib.dump(best_model, "artifacts/AdaBoost.pkl")
+            
+
             predicted= best_model.predict(X_test)
-            r2_square = r2_score(y_test, predicted)
-            logging.info(f"R2 Score of the best model: {r2_square}")  
-            return r2_square  
+            accuracy = accuracy_score(y_test, predicted)
+            f1 = f1_score(y_test, predicted, average="weighted")
+            precision = precision_score(y_test, predicted, average="weighted")
+            recall = recall_score(y_test, predicted, average="weighted")
+            
+            from sklearn.model_selection import cross_val_score
+            scores = cross_val_score(best_model, X_train, y_train, cv=5)
+            print("Cross-validation Accuracy:", scores.mean())      
+
+
+            logging.info(f"Accuracy: {accuracy}")
+            logging.info(f"F1 Score: {f1}")
+            logging.info(f"Precision: {precision}")
+            logging.info(f"Recall: {recall}")
+
+            return {
+                "best_model": best_model_name,
+                "accuracy": accuracy,
+                "f1_score": f1,
+                "precision": precision,
+                "recall": recall
+            }
+
 
         except Exception as e:
             raise CustomException(e, sys)
-
-
-

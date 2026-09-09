@@ -3,7 +3,7 @@ import pickle
 import sys
 from src.exception import CustomException
 import dill
-from sklearn.metrics import r2_score
+from sklearn.metrics import accuracy_score, r2_score
 
 def save_object(file_path, obj):
     try:
@@ -13,11 +13,18 @@ def save_object(file_path, obj):
         with open(file_path, "wb") as file_obj:
             dill.dump(obj, file_obj)
 
+
     except Exception as e:
         raise CustomException(e, sys)
 
 def evaluate_models(X_train, y_train, X_test, y_test, models):
     try:
+        report = {}
+        # for name, model in models.items():
+        #     model.fit(X_train, y_train)
+        #     y_pred = model.predict(X_test)
+        #     report[name] = accuracy_score(y_test, y_pred)
+        # return report
         report = {}
         for i in range(len(models)):
             model = list(models.values())[i]
@@ -37,6 +44,15 @@ def evaluate_models(X_train, y_train, X_test, y_test, models):
 
     except Exception as e:
         raise CustomException(e, sys)
+
+def evaluate_models(X_train, y_train, X_test, y_test, models):
+    report = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        report[name] = accuracy_score(y_test, y_pred)
+    return report
+
 
 def load_object(file_path):
     try:

@@ -35,6 +35,8 @@ class DataIngestion:
             df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
 
             logger.logging.info("Train test split initiated")
+            
+
             train_set, test_set = train_test_split(
                 df,
                 test_size=0.2,
@@ -42,6 +44,9 @@ class DataIngestion:
                 stratify=df["class"]
             )
 
+            print("Train class distribution:\n", train_set['class'].value_counts())
+            print("Test class distribution:\n", test_set['class'].value_counts())
+            
             train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
             test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
 
@@ -60,10 +65,11 @@ if __name__ == "__main__":
     train_data, test_data = obj.initiate_data_ingestion()
 
     data_transformation = DataTransformation()
-    train_array, test_array = data_transformation.initiate_data_transformation(train_data, test_data)
+    X_train, y_train, X_test, y_test = data_transformation.initiate_data_transformation(train_data, test_data)
 
     model_trainer = ModelTrainer()
-    model_score= model_trainer.initiate_model_trainer(train_array, test_array)
-    print(model_score)
+    model_score = model_trainer.initiate_model_trainer(X_train, y_train, X_test, y_test)
+    print("Model Performance:", model_score)
+
     
 

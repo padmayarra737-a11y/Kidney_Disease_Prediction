@@ -95,10 +95,12 @@ class DataTransformation:
                 obj=preprocessing_obj
             )
 
+            import joblib
+            joblib.dump(list(input_feature_train_df.columns), "artifacts/columns.pkl")
             return (
-                train_arr,
-                test_arr
-            )
+            input_feature_train_arr, np.array(target_feature_train_df),
+            input_feature_test_arr, np.array(target_feature_test_df))
+
         
         except Exception as e:
             raise CustomException(e, sys) 

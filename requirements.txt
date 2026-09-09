@@ -6,4 +6,6 @@ seaborn
 xgboost
 dill
 streamlit
+joblib
+shap
 -e .
